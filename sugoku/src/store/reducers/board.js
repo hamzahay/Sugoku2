@@ -3,11 +3,7 @@ const intialState = {
   initialBoard: [],
   loading: false,
   start: false,
-  status: '',
-  timer: {
-    MM: 0,
-    SS: 0
-  }
+  status: ''
 }
 
 export default function boardReducer (state = intialState, action) {
@@ -24,8 +20,6 @@ export default function boardReducer (state = intialState, action) {
       return { ...state, status: payload }
     case 'BOARD/SETSTART':
       return { ...state, start: payload }
-    case 'BOARD/SETTIMER':
-      return { ...state, timer: payload }
     default:
       return state
   }

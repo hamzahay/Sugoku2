@@ -18,8 +18,13 @@ export function setStart (payload) {
   return { type: 'BOARD/SETSTART', payload}
 }
 
-export function setTimer (payload) {
-  return { type: 'BOARD/SETTIMER', payload }
+export function setM (payload) {
+  return { type: 'TIMER/SETM', payload }
+}
+
+export function setS (payload) {
+  console.log(payload)
+  return { type: 'TIMER/SETS', payload }
 }
 
 export function fetchBoard (payload) {

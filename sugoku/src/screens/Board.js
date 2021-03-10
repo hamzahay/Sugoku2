@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, View, Button, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux'
 import { StatusBar } from 'expo-status-bar';
-import { fetchBoard, setBoard } from '../store/action'
+import { fetchBoard, setBoard, setStart, setUsername } from '../store/action'
 import Grid from '../components/Grid'
-import { autoSolve, checkValidate, setStatus } from '../store/action'
+import { autoSolve, checkValidate, setStatus, setM, setS } from '../store/action'
 
 export default function Board (props) {
 
@@ -17,20 +17,20 @@ export default function Board (props) {
   const difficulty = useSelector(state => state.player.difficulty)
   const username = useSelector(state => state.player.username)
   const start = useSelector(state => state.board.start)
-  const [time, setTime] = useState({ MM: 0, SS: 0 })
+  const timerS = useSelector(state => state.timer.s)
+  const timerM = useSelector(state => state.timer.m)
   const [mount, setMount] = useState(false)
+  const [s, setSs] = useState(0)
+  let interval
 
   useEffect(() => {
     dispatch(fetchBoard(difficulty))
-  }, [dispatch])
+  }, [])
 
   useEffect(() => {
     if (mount) {
-      console.log(status, 'status')
-      if (status === 'solved') {
-        setTimeout(() => {
-          navigation.navigate('Finish')
-        }, 2100)
+      if (status == "solved") {
+        navigation.push('Finish')
       }
       setTimeout(() => {
         dispatch(setStatus(''))
@@ -41,20 +41,24 @@ export default function Board (props) {
   }, [status])
 
   useEffect(() => {
-    console.log(start, 'start')
-    let timer
-    if(start) {
-      console.log('it starting')
-      timer = setInterval(() => {
-        if (time.SS > 59) {
-          setTime({ MM: time.MM++, SS: 0 })
+    console.log(start)
+    if (start) {
+      interval = setInterval(() => {
+        console.log('timer', timerM, s)
+        // timer macet gk bisa update
+        if (s < 59) {
+          const newS = s + 1
+          console.log(newS)
+          setSs(newS)
         } else {
-          setTime({ MM: time.MM, SS: time.SS++ })
+          dispatch(setS(0))
+          dispatch(setM(timerM + 1))
         }
       }, 1000)
     } else {
-      clearInterval(timer)
+      clearInterval(interval)
     }
+    return () => clearInterval(interval)
   }, [start])
 
   function handleText (text, idx, index) {
@@ -71,6 +75,15 @@ export default function Board (props) {
   function validate () {
     const data = { board: board }
     dispatch(checkValidate(data))
+  }
+
+  function giveUp () {
+    console.log('giveUp')
+    clearInterval(interval)
+    dispatch(setStart(false))
+    dispatch(setStatus(''))
+    dispatch(setUsername(''))
+    navigation.navigate('Home')
   }
 
   if (loading) {
@@ -101,7 +114,7 @@ export default function Board (props) {
           </View>
         ) }
         <View style={styles.timer}>
-          <Text style={{ textAlign: 'center'}}>{ time.SS }</Text>
+          <Text style={{ textAlign: 'center'}}></Text>
         </View>
         <View style={styles.buttonContainer}>
           <Button 
@@ -111,6 +124,12 @@ export default function Board (props) {
           <Button 
             title="Validate"
             onPress={validate}
+          />
+        </View>
+        <View style={styles.buttonContainer}>
+          <Button 
+            title="Give Up"
+            onPress={giveUp}
           />
         </View>
         <StatusBar style="auto" />
@@ -151,6 +170,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 3
   },
   timer: {
-    flexDirection: 'row'
+    flexDirection: 'column'
   }
 });
