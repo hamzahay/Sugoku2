@@ -1,2 +1,2 @@
-# sugoku
-sugoku with react native
+# Sugoku2
+Clone from private repo sugoku
